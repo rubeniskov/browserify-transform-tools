@@ -183,3 +183,15 @@ describe "transformTools require transforms", ->
         transformTools.runTransform transform, dummyJsFile, {content}, (err, result) ->
             assert err != null, "Expected an error from runTransform"
             done()
+
+    it "should pass the original context to the transform function.", (done) ->
+        context = null;
+
+        transform = transformTools.makeRequireTransform "requireTransform", (args, opts, cb) ->
+          context = @;
+          cb()
+
+        transformTools.runTransform transform, dummyJsFile, {content:"require('boo');"}, (err, result) ->
+          assert.ok context.emit != undefined
+          assert.ok context.end != undefined
+          done()

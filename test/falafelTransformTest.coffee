@@ -89,4 +89,14 @@ describe "transformTools falafel transforms", ->
             done()
 
 
+    it "should pass the original context to the transform function.", (done) ->
+        context = null;
 
+        transform = transformTools.makeFalafelTransform "unyellowify", (node, opts, cb) ->
+            context = @;
+            cb()
+
+        transformTools.runTransform transform, dummyJsFile, {content:"lala"}, (err, result) ->
+            assert.ok context.emit != undefined
+            assert.ok context.end != undefined
+            done()

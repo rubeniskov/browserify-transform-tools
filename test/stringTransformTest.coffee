@@ -102,3 +102,15 @@ describe "transformTools string transforms", ->
             (err, result) ->
                 assert.equal result, "x"
                 done()
+
+    it "should pass the original context to the transform function.", (done) ->
+        context = null;
+
+        transform = transformTools.makeStringTransform "unblueify", (content, opts, cb) ->
+          context = @;
+          cb()
+
+        transformTools.runTransform transform, dummyJsFile, {content:"lala"}, (err, result) ->
+          assert.ok context.emit != undefined
+          assert.ok context.end != undefined
+          done()
