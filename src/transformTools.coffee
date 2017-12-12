@@ -175,6 +175,7 @@ exports.makeFalafelTransform = (transformName, options={}, transformFn) ->
         transformErr = null
         pending = 1 # We'll decrement this to zero at the end to prevent premature call of `done`.
         transformed = null
+        self = @
 
         transformCb = (err) ->
             if err and !transformErr
@@ -191,7 +192,7 @@ exports.makeFalafelTransform = (transformName, options={}, transformFn) ->
         transformed = falafel content, falafelOptions, (node) ->
             pending++
             try
-                transformFn node, transformOptions, transformCb
+                transformFn.call self, node, transformOptions, transformCb
             catch err
                 transformCb err
 
@@ -254,7 +255,7 @@ exports.makeRequireTransform = (transformName, options={}, transformFn) ->
             # Parse arguemnts to calls to `require`.
             args = evaluateFunctionArgs evaluateArguments, transformOptions, node
 
-            transformFn args.values(), transformOptions, (err, transformed) ->
+            transformFn.call @, args.values(), transformOptions, (err, transformed) ->
                 return done err if err
                 if transformed? then node.update(transformed)
                 done()
@@ -330,7 +331,7 @@ exports.makeFunctionTransform = (transformName, options={}, transformFn) ->
             # Parse arguments to calls to a given function name.
             args = evaluateFunctionArgs evaluateArguments, transformOptions, node
 
-            transformFn {name: node.callee.name, args: args}, transformOptions, (err, transformed) ->
+            transformFn.call @, {name: node.callee.name, args: args}, transformOptions, (err, transformed) ->
                 return done err if err
                 if transformed? then node.update(transformed)
                 done()
@@ -422,5 +423,5 @@ evaluateFunctionArgs = (evaluateArguments, transformOptions, node) ->
             if arg.value?
                 values.push arg.value
         values
-    
+
     args
